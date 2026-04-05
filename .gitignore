@@ -1,6 +1,7 @@
 # Encrypted files and challenges
 *.yk.enc
 *.yk.challenge
+*.age
 
 # Editor swap/backup files
 *~
