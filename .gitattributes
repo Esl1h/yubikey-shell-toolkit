@@ -1,0 +1,9 @@
+# Auto detect text files and normalise line endings
+* text=auto
+
+# Shell scripts must use LF
+*.sh text eol=lf
+
+# Documentation
+*.md text eol=lf
+LICENSE text eol=lf
