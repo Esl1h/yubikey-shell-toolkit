@@ -12,6 +12,8 @@ Shell scripts for setting up, validating, and using a YubiKey as an encryption k
 | `yk-encrypt-file.sh` | Encrypt a file using YubiKey HMAC-SHA1 challenge-response as key material |
 | `yk-decrypt-file.sh` | Decrypt a file previously encrypted with `yk-encrypt-file.sh` |
 | `yk-info.sh` | Comprehensive YubiKey device report — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
+| `yk-age-encrypt.sh` | Encrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
+| `yk-age-decrypt.sh` | Decrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
 
 ---
 
@@ -212,6 +214,46 @@ All device calls use a 5-second timeout. The script requires only `ykman`; all o
 
 ---
 
+## 8. Age Encryption (PIV) — `yk-age-encrypt.sh`
+
+Encrypts a file using [age](https://age-encryption.org/) with the YubiKey PIV slot as the recipient, via `age-plugin-yubikey`.
+
+```bash
+./yk-age-encrypt.sh <file>
+./yk-age-encrypt.sh -r <recipient> -o output.age <file>
+```
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-r` | age recipient (public key or file). Default: reads from `~/.config/yk-toolkit/age/yubikey-recipient.txt` or queries the YubiKey live |
+| `-o` | Output file. Default: `<file>.age` |
+
+The script validates the recipient, prompts before overwriting, and cleans up on failure.
+
+---
+
+## 9. Age Decryption (PIV) — `yk-age-decrypt.sh`
+
+Decrypts a file previously encrypted with `yk-age-encrypt.sh`, using the YubiKey PIV identity via `age-plugin-yubikey`.
+
+```bash
+./yk-age-decrypt.sh <file.age>
+./yk-age-decrypt.sh -i <identity-file> -o output.txt <file.age>
+```
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-i` | age identity file. Default: `~/.config/yk-toolkit/age/yubikey-identity.txt` |
+| `-o` | Output file. Default: input filename without `.age` extension |
+
+Requires `age` and `age-plugin-yubikey`. The YubiKey PIN and/or physical touch may be required during decryption.
+
+---
+
 ## Security Notes
 
 - The HMAC-SHA1 secret is generated and stored inside the YubiKey — it cannot be extracted
@@ -242,6 +284,8 @@ Estes scripts sao material de referencia para a serie de posts sobre YubiKey pub
 | `yk-encrypt-file.sh` | Criptografa um arquivo usando HMAC-SHA1 challenge-response da YubiKey como material de chave |
 | `yk-decrypt-file.sh` | Descriptografa um arquivo previamente criptografado com `yk-encrypt-file.sh` |
 | `yk-info.sh` | Relatorio completo do dispositivo YubiKey — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
+| `yk-age-encrypt.sh` | Criptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
+| `yk-age-decrypt.sh` | Descriptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
 
 ---
 
@@ -439,6 +483,46 @@ Gera um relatorio completo da YubiKey conectada, consultando USB, sysfs e todos 
 | 11 | Chaves SSH FIDO2 Residentes | Chaves SSH descobriveis armazenadas na YubiKey |
 
 Todas as chamadas ao dispositivo usam timeout de 5 segundos. O script requer apenas `ykman`; todas as outras ferramentas sao opcionais e ignoradas graciosamente se ausentes.
+
+---
+
+## 8. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
+
+Criptografa um arquivo usando [age](https://age-encryption.org/) com o slot PIV da YubiKey como destinatario, via `age-plugin-yubikey`.
+
+```bash
+./yk-age-encrypt.sh <arquivo>
+./yk-age-encrypt.sh -r <destinatario> -o saida.age <arquivo>
+```
+
+### Opcoes
+
+| Flag | Descricao |
+|------|-----------|
+| `-r` | Destinatario age (chave publica ou arquivo). Padrao: le de `~/.config/yk-toolkit/age/yubikey-recipient.txt` ou consulta a YubiKey diretamente |
+| `-o` | Arquivo de saida. Padrao: `<arquivo>.age` |
+
+O script valida o destinatario, solicita confirmacao antes de sobrescrever e limpa em caso de falha.
+
+---
+
+## 9. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
+
+Descriptografa um arquivo previamente criptografado com `yk-age-encrypt.sh`, usando a identidade PIV da YubiKey via `age-plugin-yubikey`.
+
+```bash
+./yk-age-decrypt.sh <arquivo.age>
+./yk-age-decrypt.sh -i <arquivo-identidade> -o saida.txt <arquivo.age>
+```
+
+### Opcoes
+
+| Flag | Descricao |
+|------|-----------|
+| `-i` | Arquivo de identidade age. Padrao: `~/.config/yk-toolkit/age/yubikey-identity.txt` |
+| `-o` | Arquivo de saida. Padrao: nome do arquivo de entrada sem a extensao `.age` |
+
+Requer `age` e `age-plugin-yubikey`. O PIN da YubiKey e/ou toque fisico podem ser necessarios durante a descriptografia.
 
 ---
 
