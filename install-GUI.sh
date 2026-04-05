@@ -148,7 +148,7 @@ install_app() {
     if [[ -n "$pkg" ]]; then
         info "Installing ${pkg} via ${PM}..."
         case "$PM" in
-            pacman) pacman -S --needed --noconfirm "$pkg" 2>/dev/null && { log "${pkg} installed."; return 0; } ;;
+            pacman) pacman -Sy --needed --noconfirm "$pkg" 2>/dev/null && { log "${pkg} installed."; return 0; } ;;
             dnf)    dnf install -y --skip-unavailable "$pkg" 2>/dev/null && { log "${pkg} installed."; return 0; } ;;
             apt)    apt install -y "$pkg" 2>/dev/null && { log "${pkg} installed."; return 0; } ;;
             zypper) zypper install -y "$pkg" 2>/dev/null && { log "${pkg} installed."; return 0; } ;;
@@ -166,10 +166,19 @@ install_app() {
     fi
 
     # AUR hint for Arch
-    if [[ "$DISTRO" == "arch" && "$app" == "yubioath" ]]; then
-        warn "Yubico Authenticator not in official repos."
-        echo "     Install from AUR: yay -S yubico-authenticator-bin"
-        return 1
+    if [[ "$DISTRO" == "arch" ]]; then
+        case "$app" in
+            ykman-gui)
+                warn "YubiKey Manager GUI not in official Arch repos."
+                echo "     Install from AUR: yay -S yubikey-manager-qt"
+                return 1
+                ;;
+            yubioath)
+                warn "Yubico Authenticator not in official repos."
+                echo "     Install from AUR: yay -S yubico-authenticator-bin"
+                return 1
+                ;;
+        esac
     fi
 
     err "Could not install ${app}. Install manually."
