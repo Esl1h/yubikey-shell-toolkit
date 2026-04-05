@@ -89,7 +89,7 @@ install_packages() {
 
     info "Installing: ${PKGS[*]}"
     case "$PM" in
-        pacman) pacman -S --needed --noconfirm "${PKGS[@]}" ;;
+        pacman) pacman -Sy --needed --noconfirm "${PKGS[@]}" ;;
         dnf)    dnf install -y --skip-unavailable "${PKGS[@]}" ;;
         apt)    apt update && apt install -y "${PKGS[@]}" ;;
         zypper) zypper install -y "${PKGS[@]}" ;;
