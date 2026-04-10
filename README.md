@@ -488,6 +488,8 @@ Todas as chamadas ao dispositivo usam timeout de 5 segundos. O script requer ape
 
 ## 8. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
 
+> Leitura recomendada: [age: criptografia de arquivos simples, moderna e segura](https://esli.blog.br/age-criptografia-de-arquivos-simples-moderna-e-segura) e [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
+
 Criptografa um arquivo usando [age](https://age-encryption.org/) com o slot PIV da YubiKey como destinatario, via `age-plugin-yubikey`.
 
 ```bash
@@ -508,7 +510,7 @@ O script valida o destinatario, solicita confirmacao antes de sobrescrever e lim
 
 ## 9. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
 
-Descriptografa um arquivo previamente criptografado com `yk-age-encrypt.sh`, usando a identidade PIV da YubiKey via `age-plugin-yubikey`.
+Descriptografa um arquivo previamente criptografado com `yk-age-encrypt.sh`, usando a identidade PIV da YubiKey via `age-plugin-yubikey`. Veja tambem: [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
 
 ```bash
 ./yk-age-decrypt.sh <arquivo.age>
