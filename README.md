@@ -13,6 +13,7 @@ Shell scripts for setting up, validating, and using a YubiKey as an encryption k
 | `yk-decrypt-file.sh` | Decrypt a file previously encrypted with `yk-encrypt-file.sh` |
 | `yk-info.sh` | Comprehensive YubiKey device report — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
 | `yk-verify-file.sh` | Verify integrity of an encrypted file — checks prerequisites and tests decryption without writing output |
+| `yk-backup-config.sh` | Export full YubiKey configuration state to JSON as restore reference |
 | `yk-age-encrypt.sh` | Encrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
 | `yk-age-decrypt.sh` | Decrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
 
@@ -222,7 +223,40 @@ The exit code equals the number of failures — useful for scripting.
 
 ---
 
-## 8. Device Report — `yk-info.sh`
+## 8. Configuration Backup — `yk-backup-config.sh`
+
+Exports the full YubiKey configuration state to a JSON file, serving as a restore reference. Probes all subsystems via `ykman` and collects device metadata, interface configuration, slot status, certificates, and account lists.
+
+```bash
+./yk-backup-config.sh
+./yk-backup-config.sh -o my-backup.json
+```
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-o` | Output file. Default: `yubikey-backup-<serial>-<date>.json` |
+
+### What it exports
+
+| Section | Contents |
+|---------|----------|
+| `device` | Device type, serial number, firmware version, form factor |
+| `interfaces` | USB and NFC enabled interfaces list |
+| `otp_slots` | Slot 1 and Slot 2 programming status |
+| `fido2` | FIDO2 info (PIN status, credentials count) |
+| `piv` | PIV info and exported certificates (slots 9a, 9c, 9d, 9e) |
+| `oath_accounts` | List of configured OATH/TOTP account names |
+| `openpgp` | OpenPGP applet info, `gpg --card-status`, and exported public keys |
+
+The output file is created with `600` permissions. The script prompts before overwriting.
+
+> **Note:** Private keys (HMAC secrets, PIV private keys, FIDO2 credentials) cannot be exported — they remain inside the YubiKey hardware. This backup captures the **configuration state** for reference when reprovisioning a replacement key.
+
+---
+
+## 9. Device Report — `yk-info.sh`
 
 Generates a comprehensive report of the connected YubiKey, probing USB, sysfs, and all ykman subsystems. Does not require root.
 
@@ -250,7 +284,7 @@ All device calls use a 5-second timeout. The script requires only `ykman`; all o
 
 ---
 
-## 9. Age Encryption (PIV) — `yk-age-encrypt.sh`
+## 10. Age Encryption (PIV) — `yk-age-encrypt.sh`
 
 Encrypts a file using [age](https://age-encryption.org/) with the YubiKey PIV slot as the recipient, via `age-plugin-yubikey`.
 
@@ -270,7 +304,7 @@ The script validates the recipient, prompts before overwriting, and cleans up on
 
 ---
 
-## 10. Age Decryption (PIV) — `yk-age-decrypt.sh`
+## 11. Age Decryption (PIV) — `yk-age-decrypt.sh`
 
 Decrypts a file previously encrypted with `yk-age-encrypt.sh`, using the YubiKey PIV identity via `age-plugin-yubikey`.
 
@@ -321,6 +355,7 @@ Estes scripts sao material de referencia para a serie de posts sobre YubiKey pub
 | `yk-decrypt-file.sh` | Descriptografa um arquivo previamente criptografado com `yk-encrypt-file.sh` |
 | `yk-info.sh` | Relatorio completo do dispositivo YubiKey — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
 | `yk-verify-file.sh` | Verifica integridade de um arquivo criptografado — checa pre-requisitos e testa descriptografia sem gravar a saida |
+| `yk-backup-config.sh` | Exporta o estado completo da configuracao da YubiKey para JSON como referencia de restore |
 | `yk-age-encrypt.sh` | Criptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
 | `yk-age-decrypt.sh` | Descriptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
 
@@ -530,7 +565,40 @@ O codigo de saida e igual ao numero de falhas — util para automacao.
 
 ---
 
-## 8. Relatorio do Dispositivo — `yk-info.sh`
+## 8. Backup de Configuracao — `yk-backup-config.sh`
+
+Exporta o estado completo da configuracao da YubiKey para um arquivo JSON, servindo como referencia para restore. Consulta todos os subsistemas via `ykman` e coleta metadados do dispositivo, configuracao de interfaces, status dos slots, certificados e listas de contas.
+
+```bash
+./yk-backup-config.sh
+./yk-backup-config.sh -o meu-backup.json
+```
+
+### Opcoes
+
+| Flag | Descricao |
+|------|-----------|
+| `-o` | Arquivo de saida. Padrao: `yubikey-backup-<serial>-<data>.json` |
+
+### O que exporta
+
+| Secao | Conteudo |
+|-------|----------|
+| `device` | Tipo do dispositivo, numero de serie, versao de firmware, form factor |
+| `interfaces` | Lista de interfaces habilitadas via USB e NFC |
+| `otp_slots` | Status de programacao do Slot 1 e Slot 2 |
+| `fido2` | Informacoes FIDO2 (status do PIN, contagem de credenciais) |
+| `piv` | Informacoes PIV e certificados exportados (slots 9a, 9c, 9d, 9e) |
+| `oath_accounts` | Lista de nomes de contas OATH/TOTP configuradas |
+| `openpgp` | Informacoes do applet OpenPGP, `gpg --card-status` e chaves publicas exportadas |
+
+O arquivo de saida e criado com permissoes `600`. O script solicita confirmacao antes de sobrescrever.
+
+> **Nota:** Chaves privadas (segredos HMAC, chaves privadas PIV, credenciais FIDO2) nao podem ser exportadas — permanecem dentro do hardware da YubiKey. Este backup captura o **estado da configuracao** como referencia ao reprovisionar uma chave substituta.
+
+---
+
+## 9. Relatorio do Dispositivo — `yk-info.sh`
 
 Gera um relatorio completo da YubiKey conectada, consultando USB, sysfs e todos os subsistemas do ykman. Nao requer root.
 
@@ -558,7 +626,7 @@ Todas as chamadas ao dispositivo usam timeout de 5 segundos. O script requer ape
 
 ---
 
-## 9. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
+## 10. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
 
 > Leitura recomendada: [age: criptografia de arquivos simples, moderna e segura](https://esli.blog.br/age-criptografia-de-arquivos-simples-moderna-e-segura) e [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
 
@@ -580,7 +648,7 @@ O script valida o destinatario, solicita confirmacao antes de sobrescrever e lim
 
 ---
 
-## 10. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
+## 11. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
 
 Descriptografa um arquivo previamente criptografado com `yk-age-encrypt.sh`, usando a identidade PIV da YubiKey via `age-plugin-yubikey`. Veja tambem: [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
 
