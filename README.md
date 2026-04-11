@@ -12,6 +12,7 @@ Shell scripts for setting up, validating, and using a YubiKey as an encryption k
 | `yk-encrypt-file.sh` | Encrypt a file using YubiKey HMAC-SHA1 challenge-response as key material |
 | `yk-decrypt-file.sh` | Decrypt a file previously encrypted with `yk-encrypt-file.sh` |
 | `yk-info.sh` | Comprehensive YubiKey device report — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
+| `yk-verify-file.sh` | Verify integrity of an encrypted file — checks prerequisites and tests decryption without writing output |
 | `yk-age-encrypt.sh` | Encrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
 | `yk-age-decrypt.sh` | Decrypt a file using age + YubiKey PIV (age-plugin-yubikey) |
 
@@ -186,7 +187,42 @@ The script prompts before overwriting an existing file.
 
 ---
 
-## 7. Device Report — `yk-info.sh`
+## 7. Verify Encrypted File — `yk-verify-file.sh`
+
+Verifies that an encrypted file can be decrypted — without writing the output to disk. Auto-detects HMAC (`.yk.enc`) and age (`.age`) encrypted files.
+
+```bash
+./yk-verify-file.sh <file.yk.enc>
+./yk-verify-file.sh <file.age>
+./yk-verify-file.sh -i <identity-file> <file.age>
+```
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-i` | age identity file (only for `.age` files). Default: `~/.config/yk-toolkit/age/yubikey-identity.txt` |
+
+### What it checks
+
+**For HMAC files (`.yk.enc`):**
+
+1. Challenge file (`.yk.challenge`) exists alongside the encrypted file
+2. Required binaries available (`ykman`, `openssl`)
+3. YubiKey responds to the challenge on slot 2
+4. Decryption succeeds (output discarded to `/dev/null`)
+
+**For age files (`.age`):**
+
+1. `age` and `age-plugin-yubikey` are installed
+2. Identity file exists (from config or `-i` flag)
+3. Decryption succeeds (output discarded to `/dev/null`)
+
+The exit code equals the number of failures — useful for scripting.
+
+---
+
+## 8. Device Report — `yk-info.sh`
 
 Generates a comprehensive report of the connected YubiKey, probing USB, sysfs, and all ykman subsystems. Does not require root.
 
@@ -214,7 +250,7 @@ All device calls use a 5-second timeout. The script requires only `ykman`; all o
 
 ---
 
-## 8. Age Encryption (PIV) — `yk-age-encrypt.sh`
+## 9. Age Encryption (PIV) — `yk-age-encrypt.sh`
 
 Encrypts a file using [age](https://age-encryption.org/) with the YubiKey PIV slot as the recipient, via `age-plugin-yubikey`.
 
@@ -234,7 +270,7 @@ The script validates the recipient, prompts before overwriting, and cleans up on
 
 ---
 
-## 9. Age Decryption (PIV) — `yk-age-decrypt.sh`
+## 10. Age Decryption (PIV) — `yk-age-decrypt.sh`
 
 Decrypts a file previously encrypted with `yk-age-encrypt.sh`, using the YubiKey PIV identity via `age-plugin-yubikey`.
 
@@ -284,6 +320,7 @@ Estes scripts sao material de referencia para a serie de posts sobre YubiKey pub
 | `yk-encrypt-file.sh` | Criptografa um arquivo usando HMAC-SHA1 challenge-response da YubiKey como material de chave |
 | `yk-decrypt-file.sh` | Descriptografa um arquivo previamente criptografado com `yk-encrypt-file.sh` |
 | `yk-info.sh` | Relatorio completo do dispositivo YubiKey — USB, sysfs, ykman, FIDO2, PIV, OATH, OpenPGP, PC/SC, SSH |
+| `yk-verify-file.sh` | Verifica integridade de um arquivo criptografado — checa pre-requisitos e testa descriptografia sem gravar a saida |
 | `yk-age-encrypt.sh` | Criptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
 | `yk-age-decrypt.sh` | Descriptografa um arquivo usando age + YubiKey PIV (age-plugin-yubikey) |
 
@@ -458,7 +495,42 @@ O script solicita confirmacao antes de sobrescrever um arquivo existente.
 
 ---
 
-## 7. Relatorio do Dispositivo — `yk-info.sh`
+## 7. Verificacao de Arquivo Criptografado — `yk-verify-file.sh`
+
+Verifica que um arquivo criptografado pode ser descriptografado — sem gravar a saida em disco. Detecta automaticamente arquivos HMAC (`.yk.enc`) e age (`.age`).
+
+```bash
+./yk-verify-file.sh <arquivo.yk.enc>
+./yk-verify-file.sh <arquivo.age>
+./yk-verify-file.sh -i <arquivo-identidade> <arquivo.age>
+```
+
+### Opcoes
+
+| Flag | Descricao |
+|------|-----------|
+| `-i` | Arquivo de identidade age (apenas para arquivos `.age`). Padrao: `~/.config/yk-toolkit/age/yubikey-identity.txt` |
+
+### O que verifica
+
+**Para arquivos HMAC (`.yk.enc`):**
+
+1. Arquivo de desafio (`.yk.challenge`) existe junto ao arquivo criptografado
+2. Binarios necessarios disponiveis (`ykman`, `openssl`)
+3. YubiKey responde ao desafio no slot 2
+4. Descriptografia funciona (saida descartada para `/dev/null`)
+
+**Para arquivos age (`.age`):**
+
+1. `age` e `age-plugin-yubikey` estao instalados
+2. Arquivo de identidade existe (do config ou flag `-i`)
+3. Descriptografia funciona (saida descartada para `/dev/null`)
+
+O codigo de saida e igual ao numero de falhas — util para automacao.
+
+---
+
+## 8. Relatorio do Dispositivo — `yk-info.sh`
 
 Gera um relatorio completo da YubiKey conectada, consultando USB, sysfs e todos os subsistemas do ykman. Nao requer root.
 
@@ -486,7 +558,7 @@ Todas as chamadas ao dispositivo usam timeout de 5 segundos. O script requer ape
 
 ---
 
-## 8. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
+## 9. Criptografia com Age (PIV) — `yk-age-encrypt.sh`
 
 > Leitura recomendada: [age: criptografia de arquivos simples, moderna e segura](https://esli.blog.br/age-criptografia-de-arquivos-simples-moderna-e-segura) e [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
 
@@ -508,7 +580,7 @@ O script valida o destinatario, solicita confirmacao antes de sobrescrever e lim
 
 ---
 
-## 9. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
+## 10. Descriptografia com Age (PIV) — `yk-age-decrypt.sh`
 
 Descriptografa um arquivo previamente criptografado com `yk-age-encrypt.sh`, usando a identidade PIV da YubiKey via `age-plugin-yubikey`. Veja tambem: [Criptografia com age + YubiKey PIV](https://esli.blog.br/age-yubikey)
 
